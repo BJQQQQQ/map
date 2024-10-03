@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>THE WORST PLACE TO LIVE IN NZ</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Final_Rank_1.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-51.77430107933746,-179.99500602521326],[-30.90339118625657,179.9616938438889]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_Final_Rank_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Location</th>\
+                        <td class="visible-with-data" id="Location">' + (feature.properties['Location'] !== null ? autolinker.link(feature.properties['Location'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank</th>\
+                        <td class="visible-with-data" id="Rank">' + (feature.properties['Rank'] !== null ? autolinker.link(feature.properties['Rank'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Final_Rank_1_0(feature) {
+            switch(String(feature.properties['Rank'])) {
+                case '1.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(223,236,249,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '2.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(223,236,249,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '3.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,236,249,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '4.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,236,248,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '5.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,235,248,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '6.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,235,248,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '7.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,235,248,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '8.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,235,247,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '9.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,235,247,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '10.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(221,234,247,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '11.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(218,232,246,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '12.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,230,245,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '13.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(212,229,244,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '14.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(210,227,243,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '15.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(207,225,242,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '16.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(204,223,241,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '17.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(201,221,240,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '18.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(198,219,239,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '19.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(194,217,238,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '20.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(189,215,236,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '21.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(185,213,234,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '22.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(180,211,233,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '23.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(175,209,231,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '24.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(171,207,229,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '25.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(166,205,228,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '26.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(161,203,226,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '27.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(156,201,225,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '28.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(151,198,223,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '29.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(145,195,222,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '30.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(139,191,221,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '31.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(133,188,220,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '32.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(127,185,218,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '33.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(121,182,217,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '34.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(115,178,216,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '35.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(109,175,214,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '36.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(104,172,213,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '37.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(99,169,211,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '38.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(94,165,209,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '39.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(89,162,207,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '40.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(85,159,205,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '41.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(80,155,203,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '42.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(75,152,202,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '43.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(70,149,200,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '44.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(66,146,198,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '45.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(62,142,196,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '46.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(58,138,194,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '47.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(54,134,192,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '48.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(50,130,190,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '49.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(46,126,188,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,123,186,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '51.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,119,184,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '52.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(35,115,182,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '53.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(31,111,179,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '54.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(28,107,176,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '55.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(25,103,173,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '56.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(22,99,170,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '57.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(19,95,167,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '58.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(16,91,164,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '59.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(12,87,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '60.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(9,83,157,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '61.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(8,76,147,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '62.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(7,67,132,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '63.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(6,59,116,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '64.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(5,50,101,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '65.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(4,42,86,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '66.0':
+                    return {
+                pane: 'pane_Final_Rank_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(4,33,70,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Final_Rank_1');
+        map.getPane('pane_Final_Rank_1').style.zIndex = 401;
+        map.getPane('pane_Final_Rank_1').style['mix-blend-mode'] = 'normal';
+        var layer_Final_Rank_1 = new L.geoJson(json_Final_Rank_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Final_Rank_1',
+            layerName: 'layer_Final_Rank_1',
+            pane: 'pane_Final_Rank_1',
+            onEachFeature: pop_Final_Rank_1,
+            style: style_Final_Rank_1_0,
+        });
+        bounds_group.addLayer(layer_Final_Rank_1);
+        map.addLayer(layer_Final_Rank_1);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Location": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Location = document.createElement('div');
+            div_Location.id = "div_Location";
+            div_Location.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Location);
+            sel_Location = document.createElement('select');
+            sel_Location.multiple = true;
+            sel_Location.size = 10;
+            sel_Location.id = "sel_Location";
+            var Location_options_str = "<option value='' unselected></option>";
+            sel_Location.onchange = function(){filterFunc()};
+            Location_options_str  += '<option value="Ashburton District">Ashburton District</option>';
+            Location_options_str  += '<option value="Auckland">Auckland</option>';
+            Location_options_str  += '<option value="Buller District">Buller District</option>';
+            Location_options_str  += '<option value="Carterton District">Carterton District</option>';
+            Location_options_str  += '<option value="Central Hawke&apos;s Bay District">Central Hawke&apos;s Bay District</option>';
+            Location_options_str  += '<option value="Central Otago District">Central Otago District</option>';
+            Location_options_str  += '<option value="Christchurch City">Christchurch City</option>';
+            Location_options_str  += '<option value="Clutha District">Clutha District</option>';
+            Location_options_str  += '<option value="Dunedin City">Dunedin City</option>';
+            Location_options_str  += '<option value="Far North District">Far North District</option>';
+            Location_options_str  += '<option value="Gisborne District">Gisborne District</option>';
+            Location_options_str  += '<option value="Gore District">Gore District</option>';
+            Location_options_str  += '<option value="Grey District">Grey District</option>';
+            Location_options_str  += '<option value="Hamilton City">Hamilton City</option>';
+            Location_options_str  += '<option value="Hastings District">Hastings District</option>';
+            Location_options_str  += '<option value="Hauraki District">Hauraki District</option>';
+            Location_options_str  += '<option value="Horowhenua District">Horowhenua District</option>';
+            Location_options_str  += '<option value="Hurunui District">Hurunui District</option>';
+            Location_options_str  += '<option value="Invercargill City">Invercargill City</option>';
+            Location_options_str  += '<option value="Kaikoura District">Kaikoura District</option>';
+            Location_options_str  += '<option value="Kaipara District">Kaipara District</option>';
+            Location_options_str  += '<option value="Kapiti Coast District">Kapiti Coast District</option>';
+            Location_options_str  += '<option value="Kawerau District">Kawerau District</option>';
+            Location_options_str  += '<option value="Lower Hutt City">Lower Hutt City</option>';
+            Location_options_str  += '<option value="Mackenzie District">Mackenzie District</option>';
+            Location_options_str  += '<option value="Manawatu District">Manawatu District</option>';
+            Location_options_str  += '<option value="Marlborough District">Marlborough District</option>';
+            Location_options_str  += '<option value="Masterton District">Masterton District</option>';
+            Location_options_str  += '<option value="Matamata-Piako District">Matamata-Piako District</option>';
+            Location_options_str  += '<option value="Napier City">Napier City</option>';
+            Location_options_str  += '<option value="Nelson City">Nelson City</option>';
+            Location_options_str  += '<option value="New Plymouth District">New Plymouth District</option>';
+            Location_options_str  += '<option value="Opotiki District">Opotiki District</option>';
+            Location_options_str  += '<option value="Otorohanga District">Otorohanga District</option>';
+            Location_options_str  += '<option value="Palmerston North City">Palmerston North City</option>';
+            Location_options_str  += '<option value="Porirua City">Porirua City</option>';
+            Location_options_str  += '<option value="Queenstown-Lakes District">Queenstown-Lakes District</option>';
+            Location_options_str  += '<option value="Rangitikei District">Rangitikei District</option>';
+            Location_options_str  += '<option value="Rotorua District">Rotorua District</option>';
+            Location_options_str  += '<option value="Ruapehu District">Ruapehu District</option>';
+            Location_options_str  += '<option value="Selwyn District">Selwyn District</option>';
+            Location_options_str  += '<option value="South Taranaki District">South Taranaki District</option>';
+            Location_options_str  += '<option value="South Waikato District">South Waikato District</option>';
+            Location_options_str  += '<option value="South Wairarapa District">South Wairarapa District</option>';
+            Location_options_str  += '<option value="Southland District">Southland District</option>';
+            Location_options_str  += '<option value="Stratford District">Stratford District</option>';
+            Location_options_str  += '<option value="Tararua District">Tararua District</option>';
+            Location_options_str  += '<option value="Tasman District">Tasman District</option>';
+            Location_options_str  += '<option value="Taupo District">Taupo District</option>';
+            Location_options_str  += '<option value="Tauranga City">Tauranga City</option>';
+            Location_options_str  += '<option value="Thames-Coromandel District">Thames-Coromandel District</option>';
+            Location_options_str  += '<option value="Timaru District">Timaru District</option>';
+            Location_options_str  += '<option value="Upper Hutt City">Upper Hutt City</option>';
+            Location_options_str  += '<option value="Waikato District">Waikato District</option>';
+            Location_options_str  += '<option value="Waimakariri District">Waimakariri District</option>';
+            Location_options_str  += '<option value="Waimate District">Waimate District</option>';
+            Location_options_str  += '<option value="Waipa District">Waipa District</option>';
+            Location_options_str  += '<option value="Wairoa District">Wairoa District</option>';
+            Location_options_str  += '<option value="Waitaki District">Waitaki District</option>';
+            Location_options_str  += '<option value="Waitomo District">Waitomo District</option>';
+            Location_options_str  += '<option value="Wellington City">Wellington City</option>';
+            Location_options_str  += '<option value="Western Bay of Plenty District">Western Bay of Plenty District</option>';
+            Location_options_str  += '<option value="Westland District">Westland District</option>';
+            Location_options_str  += '<option value="Whakatane District">Whakatane District</option>';
+            Location_options_str  += '<option value="Whanganui District">Whanganui District</option>';
+            Location_options_str  += '<option value="Whangarei District">Whangarei District</option>';
+            sel_Location.innerHTML = Location_options_str;
+            div_Location.appendChild(sel_Location);
+            var lab_Location = document.createElement('div');
+            lab_Location.innerHTML = 'Location';
+            lab_Location.className = 'filterlabel';
+            div_Location.appendChild(lab_Location);
+            var reset_Location = document.createElement('div');
+            reset_Location.innerHTML = 'clear filter';
+            reset_Location.className = 'filterlabel';
+            reset_Location.onclick = function() {
+                var options = document.getElementById("sel_Location").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Location.appendChild(reset_Location);
+        </script>
+    </body>
+</html>
